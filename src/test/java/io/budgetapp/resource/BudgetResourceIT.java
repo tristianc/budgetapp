@@ -15,8 +15,6 @@ import org.junit.Test;
 import javax.ws.rs.core.Response;
 import java.util.List;
 
-import static org.mockito.Mockito.mock;
-
 /**
  *
  */
@@ -59,11 +57,6 @@ public class BudgetResourceIT extends ResourceIT {
         // then
         assertCreated(response);
         Assert.assertNotNull(response.getLocation());
-    }
-
-    @Test
-    public void shouldAbleCreateBudgetMock(){
-        AddBudgetForm mock = mock(AddBudgetForm.class);
     }
 
     @Test
