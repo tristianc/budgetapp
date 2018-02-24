@@ -16,6 +16,7 @@ public class BudgetDAOTest {
     private BudgetDAO budgetDao;
     private SessionFactory mockSessionFactory;
     private AppConfiguration mockConfiguration;
+    private Session mockSession;
     private User user;
 
     @Before
@@ -23,25 +24,47 @@ public class BudgetDAOTest {
         this.mockSessionFactory = mock(SessionFactory.class);
         this.mockConfiguration = mock(AppConfiguration.class);
         this.budgetDao = new BudgetDAO(mockSessionFactory, mockConfiguration);
-
         this.user = mock(User.class);
+        this.mockSession = mock(Session.class);
+
+        when(mockSessionFactory.getCurrentSession()).thenReturn(mockSession);
     }
 
     @Test
-    public void test_setPeriodOnAddBudget(){
+    public void test_AddBudget(){
         //setup
         Budget mockBudget = mock(Budget.class);
-        Session mockSession = mock(Session.class);
         //stub
         when(mockBudget.getPeriod()).thenReturn(null);
-        when(mockSessionFactory.getCurrentSession()).thenReturn(mockSession);
 
         //call
         this.budgetDao.addBudget(this.user, mockBudget);
         //verify
         verify(mockBudget).setPeriod(Util.currentYearMonth());
         verify(mockBudget).setUser(this.user);
-        verify(mockSession).saveOrUpdate(mockBudget);
+        verify(this.mockSession).saveOrUpdate(mockBudget);
+    }
+
+    @Test
+    public void test_updateBudget(){
+        //setup
+        Budget mockBudget = mock(Budget.class);
+
+        this.budgetDao.update(mockBudget);
+
+        //verify
+        verify(this.mockSession).saveOrUpdate(mockBudget);
+    }
+
+    @Test
+    public void test_deleteBudget(){
+        //setup
+        Budget mockBudget = mock(Budget.class);
+
+        this.budgetDao.delete(mockBudget);
+
+        //verify
+        verify(this.mockSession).delete(mockBudget);
     }
 
 
