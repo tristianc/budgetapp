@@ -58,4 +58,18 @@ public class FinanceServiceTest {
         //then exception is caught via the @Test annotation
     }
 
+    //verifies that the user created matches the sign up form
+    @Test
+    public void addUserTest(){
+        //given
+        FinanceService financeService = new FinanceService(userDAOMock, budgetDAOMock, budgetTypeDAOMock, categoryDAOMock, transactionDAOMock, recurringDAOMock, authTokenDAOMock, passwordEncoderMock);
+        SignUpForm form = new SignUpForm();
+        form.setUsername("myUsername");
+        form.setPassword("password");
+
+        //when
+        User newUser = financeService.addUser(form);
+
+    }
+
 }
