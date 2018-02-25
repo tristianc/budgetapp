@@ -3,19 +3,23 @@ package io.budgetapp.service;
 import io.budgetapp.application.DataConstraintException;
 import io.budgetapp.crypto.PasswordEncoder;
 import io.budgetapp.dao.*;
-import io.budgetapp.model.Budget;
-import io.budgetapp.model.Category;
-import io.budgetapp.model.User;
+import io.budgetapp.model.*;
 import io.budgetapp.model.form.SignUpForm;
+import io.budgetapp.model.form.recurring.AddRecurringForm;
 import io.budgetapp.model.form.user.Password;
 import io.budgetapp.model.form.user.Profile;
 import io.budgetapp.model.form.budget.AddBudgetForm;
 import io.budgetapp.model.form.budget.UpdateBudgetForm;
+import io.budgetapp.util.Util;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
+
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
+import java.util.Date;
 import java.util.Optional;
 
 public class FinanceServiceTest {
@@ -73,7 +77,7 @@ public class FinanceServiceTest {
         //given
         FinanceService financeService = new FinanceService(userDAOMock, budgetDAOMock, budgetTypeDAOMock, categoryDAOMock, transactionDAOMock, recurringDAOMock, authTokenDAOMock, passwordEncoderMock);
         SignUpForm form = new SignUpForm();
-        
+
 
         //spy
         FinanceService financeServiceSpy = spy(financeService);
@@ -214,6 +218,61 @@ public class FinanceServiceTest {
         verify(mockBudget).setName(anyString());
         verify(mockBudget).setProjected(anyDouble());
         verify(this.budgetDAOMock).update(mockBudget);
+    }
+
+    @Test
+    public void testAddValidRecurring(){
+        // Set up
+        FinanceService financeService = new FinanceService(userDAOMock, budgetDAOMock, budgetTypeDAOMock,
+                                                           categoryDAOMock, transactionDAOMock, recurringDAOMock,
+                                                           authTokenDAOMock, passwordEncoderMock);
+        User testUser = new User();
+        AddRecurringForm addRecurringFormMock = mock( AddRecurringForm.class );
+        Budget mockBudget = Mockito.mock( Budget.class );
+        Date now = new Date();
+        Recurring recurring;
+        Recurring recurringMock = Mockito.mock( Recurring.class );
+
+        // Stub
+        when( financeService.findBudgetById( testUser, 0 ) ).thenReturn( mockBudget );
+        when( addRecurringFormMock.getRecurringAt() ).thenReturn( new Date() );
+        when( addRecurringFormMock.getAmount() ).thenReturn( 10.00 );
+        when( addRecurringFormMock.getRecurringType() ).thenReturn( RecurringType.MONTHLY );
+        when( mockBudget.getBudgetType() ).thenReturn( new BudgetType() );
+        when( addRecurringFormMock.getRemark() ).thenReturn( "" );
+        when( mockBudget.getName() ).thenReturn( "" );
+        when( recurringDAOMock.addRecurring( any() ) ).thenReturn( recurringMock );
+        when( recurringMock.getAmount() ).thenReturn( 10.00 );
+
+        // Pre-lim date check
+        Assert.assertTrue( Util.inMonth( addRecurringFormMock.getRecurringAt(), now ) );
+
+        // Call
+        recurring = financeService.addRecurring( testUser, addRecurringFormMock );
+
+        //Verification: Check if actually added Recurring
+        Assert.assertNotNull( recurring );
+    }
+
+    @Test
+    public void testDeleteRecurring(){
+        //Set up
+        FinanceService financeService = new FinanceService(userDAOMock, budgetDAOMock, budgetTypeDAOMock,
+                                                           categoryDAOMock, transactionDAOMock, recurringDAOMock,
+                                                           authTokenDAOMock, passwordEncoderMock);
+        User testUser = new User();
+        Long recurringId = 100L;
+        Recurring toDelete = new Recurring();
+
+        // Stubs
+        when( recurringDAOMock.find( testUser, recurringId ) ).thenReturn( toDelete );
+
+        // Call
+        financeService.deleteRecurring( testUser, 100 );
+
+        // Verification: Proof of deletion
+        Assert.assertNull( toDelete.getId() );
+        Assert.assertNotNull( recurringId );
     }
 }
 ;
