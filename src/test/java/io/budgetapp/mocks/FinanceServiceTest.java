@@ -3,16 +3,25 @@ package io.budgetapp.mocks;
 import io.budgetapp.application.DataConstraintException;
 import io.budgetapp.crypto.PasswordEncoder;
 import io.budgetapp.dao.*;
+import io.budgetapp.model.Budget;
+import io.budgetapp.model.RecurringType;
+import io.budgetapp.model.Transaction;
 import io.budgetapp.model.User;
 import io.budgetapp.model.form.SignUpForm;
+import io.budgetapp.model.form.TransactionForm;
+import io.budgetapp.model.form.report.SearchFilter;
 import io.budgetapp.service.FinanceService;
+import org.hibernate.Criteria;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static junit.framework.Assert.assertTrue;
+import static junit.framework.TestCase.assertEquals;
+import static org.mockito.Mockito.*;
 
 public class FinanceServiceTest {
 
@@ -58,4 +67,32 @@ public class FinanceServiceTest {
         //then exception is caught via the @Test annotation
     }
 
+    @Test
+    public void deleteTransactionTest(){
+        // setup
+        FinanceService financeService = new FinanceService(userDAOMock, budgetDAOMock, budgetTypeDAOMock, categoryDAOMock, transactionDAOMock, recurringDAOMock, authTokenDAOMock, passwordEncoderMock);
+        User mockUser = mock(User.class);
+        Transaction mockTransaction = mock(Transaction.class);
+        Budget mockBudget = mock(Budget.class);
+
+        Long id = (long)1;
+        Double actual = 4.0;
+        Double amount = 2.0;
+
+        // stubs
+        when(transactionDAOMock.findById(mockUser, id)).thenReturn(Optional.ofNullable(mockTransaction));
+        when(mockTransaction.getId()).thenReturn(id);
+        when(mockTransaction.getBudget()).thenReturn(mockBudget);
+        when(mockBudget.getActual()).thenReturn(actual);
+        when(mockTransaction.getAmount()).thenReturn(amount);
+
+        // call
+        Boolean deleteTransaction = financeService.deleteTransaction(mockUser, mockTransaction.getId());
+
+        // verify
+        verify(transactionDAOMock).delete(mockTransaction);
+        assertTrue(deleteTransaction);
+    }
+
+    
 }
