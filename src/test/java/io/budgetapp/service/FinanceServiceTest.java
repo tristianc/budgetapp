@@ -274,5 +274,22 @@ public class FinanceServiceTest {
         Assert.assertNull( toDelete.getId() );
         Assert.assertNotNull( recurringId );
     }
+    
+    @Test
+    public void test_deleteCategory(){
+    	//setup
+        FinanceService financeService = new FinanceService(userDAOMock, budgetDAOMock, budgetTypeDAOMock, categoryDAOMock, transactionDAOMock, recurringDAOMock, authTokenDAOMock, passwordEncoderMock);
+        User mockUser = mock(User.class);
+        Category mockCategory = mock(Category.class);
+        //stub
+        when(this.categoryDAOMock.find(mockUser, 0L)).thenReturn(mockCategory);
+        
+    	//call
+        financeService.deleteCategory(mockUser, 0L);
+        
+    	//verify
+        verify(this.categoryDAOMock).delete(mockCategory);
+    }
+
 }
 ;
