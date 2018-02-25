@@ -143,50 +143,50 @@ public class FinanceServiceTest {
         verify(userDAOMock).update(userReal);
     }
 
-        @Test
-        public void test_addBudget(){
-            //setup
-            FinanceService financeService = new FinanceService(userDAOMock, budgetDAOMock, budgetTypeDAOMock, categoryDAOMock, transactionDAOMock, recurringDAOMock, authTokenDAOMock, passwordEncoderMock);
-            User mockUser = mock(User.class);
-            AddBudgetForm mockAddBudgetForm = mock(AddBudgetForm.class);
+    @Test
+    public void test_addBudget(){
+        //setup
+        FinanceService financeService = new FinanceService(userDAOMock, budgetDAOMock, budgetTypeDAOMock, categoryDAOMock, transactionDAOMock, recurringDAOMock, authTokenDAOMock, passwordEncoderMock);
+        User mockUser = mock(User.class);
+        AddBudgetForm mockAddBudgetForm = mock(AddBudgetForm.class);
 
-            //call
-            financeService.addBudget(mockUser, mockAddBudgetForm);
+        //call
+        financeService.addBudget(mockUser, mockAddBudgetForm);
 
-            //verify
-            verify(this.budgetTypeDAOMock).addBudgetType();
-            verify(this.budgetDAOMock).addBudget(any(User.class), any(Budget.class));
-        }
+        //verify
+        verify(this.budgetTypeDAOMock).addBudgetType();
+        verify(this.budgetDAOMock).addBudget(any(User.class), any(Budget.class));
+    }
 
-        @Test
-        public void test_updateBudget () {
-            //setup
-            FinanceService financeService = new FinanceService(userDAOMock, budgetDAOMock, budgetTypeDAOMock, categoryDAOMock, transactionDAOMock, recurringDAOMock, authTokenDAOMock, passwordEncoderMock);
-            User mockUser = mock(User.class);
-            UpdateBudgetForm mockUpdateBudgetForm = mock(UpdateBudgetForm.class);
-            Budget mockBudget = mock(Budget.class);
-            Category mockCategory = mock(Category.class);
+    @Test
+    public void test_updateBudget(){
+        //setup
+        FinanceService financeService = new FinanceService(userDAOMock, budgetDAOMock, budgetTypeDAOMock, categoryDAOMock, transactionDAOMock, recurringDAOMock, authTokenDAOMock, passwordEncoderMock);
+        User mockUser = mock(User.class);
+        UpdateBudgetForm mockUpdateBudgetForm = mock(UpdateBudgetForm.class);
+        Budget mockBudget = mock(Budget.class);
+        Category mockCategory = mock(Category.class);
 
-            //Stub
-            when(this.budgetDAOMock.findById(any(User.class), anyLong())).thenReturn(mockBudget);
+        //Stub
+        when(this.budgetDAOMock.findById(any(User.class), anyLong())).thenReturn(mockBudget);
 
-            when(mockUpdateBudgetForm.getId()).thenReturn(1L);
-            when(mockUpdateBudgetForm.getName()).thenReturn("TESTING");
-            when(mockUpdateBudgetForm.getProjected()).thenReturn(1D);
-            when(mockBudget.getCategory()).thenReturn(mockCategory);
-            when(mockCategory.getId()).thenReturn(1L);
-            when(mockCategory.getType()).thenReturn(null);
+        when(mockUpdateBudgetForm.getId()).thenReturn(1L);
+        when(mockUpdateBudgetForm.getName()).thenReturn("TESTING");
+        when(mockUpdateBudgetForm.getProjected()).thenReturn(1D);
+        when(mockBudget.getCategory()).thenReturn(mockCategory);
+        when(mockCategory.getId()).thenReturn(1L);
+        when(mockCategory.getType()).thenReturn(null);
 
-            when(this.categoryDAOMock.findById(anyLong())).thenReturn(mockCategory);
+        when(this.categoryDAOMock.findById(anyLong())).thenReturn(mockCategory);
 
-            //call
-            financeService.updateBudget(mockUser, mockUpdateBudgetForm);
+        //call
+        financeService.updateBudget(mockUser, mockUpdateBudgetForm);
 
-            //Verify
-            verify(this.budgetDAOMock).findById(mockUser, mockUpdateBudgetForm.getId());
-            verify(this.categoryDAOMock).findById(1L);
-            verify(mockBudget).setName(anyString());
-            verify(mockBudget).setProjected(anyDouble());
-            verify(this.budgetDAOMock).update(mockBudget);
-        }
+        //Verify
+        verify(this.budgetDAOMock).findById(mockUser, mockUpdateBudgetForm.getId());
+        verify(this.categoryDAOMock).findById(1L);
+        verify(mockBudget).setName(anyString());
+        verify(mockBudget).setProjected(anyDouble());
+        verify(this.budgetDAOMock).update(mockBudget);
+    }
 }
