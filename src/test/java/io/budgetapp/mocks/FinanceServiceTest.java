@@ -141,7 +141,8 @@ public class FinanceServiceTest {
         assertTrue(password.getPassword().equals(password.getConfirm()));
         assertTrue(password.getOriginal().equals(userMock.getPassword()));
         verify(userDAOMock).update(userReal);
-
+    
+    @Test
     public void test_addBudget(){
         //setup
         FinanceService financeService = new FinanceService(userDAOMock, budgetDAOMock, budgetTypeDAOMock, categoryDAOMock, transactionDAOMock, recurringDAOMock, authTokenDAOMock, passwordEncoderMock);
