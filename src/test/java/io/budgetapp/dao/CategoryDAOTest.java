@@ -3,7 +3,6 @@ package io.budgetapp.dao;
 import io.budgetapp.configuration.AppConfiguration;
 import io.budgetapp.model.Category;
 import io.budgetapp.model.User;
-import io.budgetapp.util.Util;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.junit.Before;
