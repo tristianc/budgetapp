@@ -94,5 +94,17 @@ public class FinanceServiceTest {
         assertTrue(deleteTransaction);
     }
 
+    @Test
+    public void findTransactionByIdTest(){
+        // setup
+        FinanceService financeService = new FinanceService(userDAOMock, budgetDAOMock, budgetTypeDAOMock, categoryDAOMock, transactionDAOMock, recurringDAOMock, authTokenDAOMock, passwordEncoderMock);
+        Long iD = (long)2;
+
+        // call
+        financeService.findTransactionById(iD);
+
+        // verify
+        verify(transactionDAOMock).findById(iD);
+    }
     
 }
