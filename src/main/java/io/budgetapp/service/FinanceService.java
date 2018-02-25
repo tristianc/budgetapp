@@ -108,6 +108,7 @@ public class FinanceService {
         if(!passwordEncoder.matches(password.getOriginal(), user.getPassword())) {
             throw new DataConstraintException("original", "Current Password does not match");
         }
+
         originalUser.setPassword(passwordEncoder.encode(password.getPassword()));
         userDAO.update(originalUser);
     }
