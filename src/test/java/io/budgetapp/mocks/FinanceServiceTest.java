@@ -98,35 +98,45 @@ public class FinanceServiceTest {
     public void changePasswordInconsistentPasswordTestOriginal(){
         FinanceService financeService = new FinanceService(userDAOMock, budgetDAOMock, budgetTypeDAOMock, categoryDAOMock, transactionDAOMock, recurringDAOMock, authTokenDAOMock, passwordEncoderMock);
         User user = new User();
-        Password password = new Password();
-        password.setPassword("test");
-        password.setConfirm("test");
-        password.setOriginal("fail"); 
-
-        //when
-        when(passwordEncoderMock.matches(password.getOriginal(), password.getPassword())).thenReturn(false);
-        financeService.changePassword(user, password);
-
-        //then exception is caught via the @Test annotation
-        assertTrue(password.getPassword().equals(password.getConfirm()));
-        assertFalse(password.getOriginal().equals(password.getPassword()));
-    }
-
-    @Test
-    public void changePasswordConsistentPasswordTest(){
-        FinanceService financeService = new FinanceService(userDAOMock, budgetDAOMock, budgetTypeDAOMock, categoryDAOMock, transactionDAOMock, recurringDAOMock, authTokenDAOMock, passwordEncoderMock);
-        User user = new User();
+        user.setPassword("fail");
         Password password = new Password();
         password.setPassword("test");
         password.setConfirm("test");
         password.setOriginal("test");
 
         //when
+        when(passwordEncoderMock.matches(password.getOriginal(), user.getPassword())).thenReturn(false);
         financeService.changePassword(user, password);
 
         //then exception is caught via the @Test annotation
         assertTrue(password.getPassword().equals(password.getConfirm()));
-        assertTrue(password.getOriginal().equals(password.getPassword()));
-        verify(userDAOMock).update(user);
+        assertFalse(password.getOriginal().equals(user.getPassword()));
+    }
+
+    @Test
+    public void changePasswordConsistentPasswordTest(){
+        FinanceService financeService = new FinanceService(userDAOMock, budgetDAOMock, budgetTypeDAOMock, categoryDAOMock, transactionDAOMock, recurringDAOMock, authTokenDAOMock, passwordEncoderMock);
+        User userReal = new User();
+        userReal.setUsername("dummy user");
+        userReal.setPassword("dummy pass");
+
+        User userMock = mock(User.class);
+
+        Password password = new Password();
+        password.setPassword("test");
+        password.setConfirm("test");
+        password.setOriginal("dummy pass");
+
+        //when
+        when(userDAOMock.findById(anyLong())).thenReturn(userReal);
+        when(userMock.getPassword()).thenReturn("dummy pass");
+        when(passwordEncoderMock.matches(password.getOriginal(), userReal.getPassword())).thenReturn(true);
+        when(passwordEncoderMock.encode(anyString())).thenReturn("test");
+        financeService.changePassword(userMock, password);
+
+        //
+        assertTrue(password.getPassword().equals(password.getConfirm()));
+        assertTrue(password.getOriginal().equals(userMock.getPassword()));
+        verify(userDAOMock).update(userReal);
     }
 }
