@@ -7,11 +7,15 @@ import io.budgetapp.model.Budget;
 import io.budgetapp.model.Category;
 import io.budgetapp.model.User;
 import io.budgetapp.model.form.SignUpForm;
+import io.budgetapp.model.form.user.Password;
+import io.budgetapp.model.form.user.Profile;
 import io.budgetapp.model.form.budget.AddBudgetForm;
 import io.budgetapp.model.form.budget.UpdateBudgetForm;
 import io.budgetapp.service.FinanceService;
 import org.junit.Before;
 import org.junit.Test;
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
 import java.util.Optional;
 
@@ -59,6 +63,84 @@ public class FinanceServiceTest {
         financeService.addUser(form);
 
         //then exception is caught via the @Test annotation
+    }
+
+    @Test
+    public void updateTest(){
+        FinanceService financeService = new FinanceService(userDAOMock, budgetDAOMock, budgetTypeDAOMock, categoryDAOMock, transactionDAOMock, recurringDAOMock, authTokenDAOMock, passwordEncoderMock);
+        User user = new User();
+        Profile profile = new Profile();
+        profile.setName("testName");
+        profile.setCurrency("cad");
+
+        //action
+        User updatedUser = financeService.update(user, profile);
+
+        //result
+        verify(userDAOMock).update(user);
+        assertEquals(updatedUser.getName(), profile.getName());
+        assertEquals(updatedUser.getCurrency(), profile.getCurrency());
+    }
+
+    @Test(expected=DataConstraintException.class)
+    public void changePasswordInconsistentPasswordTestConfirm(){
+        FinanceService financeService = new FinanceService(userDAOMock, budgetDAOMock, budgetTypeDAOMock, categoryDAOMock, transactionDAOMock, recurringDAOMock, authTokenDAOMock, passwordEncoderMock);
+        User user = new User();
+        Password password = new Password();
+        password.setPassword("test");
+        password.setConfirm("fail");
+
+        //when
+        financeService.changePassword(user, password);
+
+        //then exception is caught via the @Test annotation
+        assertFalse(password.getPassword().equals(password.getConfirm()));
+    }
+
+    @Test(expected=DataConstraintException.class)
+    public void changePasswordInconsistentPasswordTestOriginal(){
+        FinanceService financeService = new FinanceService(userDAOMock, budgetDAOMock, budgetTypeDAOMock, categoryDAOMock, transactionDAOMock, recurringDAOMock, authTokenDAOMock, passwordEncoderMock);
+        User user = new User();
+        user.setPassword("fail");
+        Password password = new Password();
+        password.setPassword("test");
+        password.setConfirm("test");
+        password.setOriginal("test");
+
+        //when
+        when(passwordEncoderMock.matches(password.getOriginal(), user.getPassword())).thenReturn(false);
+        financeService.changePassword(user, password);
+
+        //then exception is caught via the @Test annotation
+        assertTrue(password.getPassword().equals(password.getConfirm()));
+        assertFalse(password.getOriginal().equals(user.getPassword()));
+    }
+
+    @Test
+    public void changePasswordConsistentPasswordTest() {
+        FinanceService financeService = new FinanceService(userDAOMock, budgetDAOMock, budgetTypeDAOMock, categoryDAOMock, transactionDAOMock, recurringDAOMock, authTokenDAOMock, passwordEncoderMock);
+        User userReal = new User();
+        userReal.setUsername("dummy user");
+        userReal.setPassword("dummy pass");
+
+        User userMock = mock(User.class);
+
+        Password password = new Password();
+        password.setPassword("test");
+        password.setConfirm("test");
+        password.setOriginal("dummy pass");
+
+        //when
+        when(userDAOMock.findById(anyLong())).thenReturn(userReal);
+        when(userMock.getPassword()).thenReturn("dummy pass");
+        when(passwordEncoderMock.matches(password.getOriginal(), userReal.getPassword())).thenReturn(true);
+        when(passwordEncoderMock.encode(anyString())).thenReturn("test");
+        financeService.changePassword(userMock, password);
+
+        //
+        assertTrue(password.getPassword().equals(password.getConfirm()));
+        assertTrue(password.getOriginal().equals(userMock.getPassword()));
+        verify(userDAOMock).update(userReal);
     }
 
     @Test
