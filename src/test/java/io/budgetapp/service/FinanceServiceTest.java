@@ -290,5 +290,6 @@ public class FinanceServiceTest {
     	//verify
         verify(this.categoryDAOMock).delete(mockCategory);
     }
+
 }
 ;
