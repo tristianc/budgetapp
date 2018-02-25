@@ -106,5 +106,21 @@ public class FinanceServiceTest {
         // verify
         verify(transactionDAOMock).findById(iD);
     }
-    
+
+    @Test
+    public void findTodayRecurringsTransactionsTest(){
+        // setup
+        FinanceService financeService = new FinanceService(userDAOMock, budgetDAOMock, budgetTypeDAOMock, categoryDAOMock, transactionDAOMock, recurringDAOMock, authTokenDAOMock, passwordEncoderMock);
+        User testUser = new User();
+        SearchFilter testSearchFilter = new SearchFilter();
+        testSearchFilter.setStartOn(new Date());
+        testSearchFilter.setEndOn(new Date());
+        testSearchFilter.setAuto(Boolean.TRUE);
+
+        // call
+        List returnlist = financeService.findTodayRecurringsTransactions(testUser);
+
+        // verify
+        assertTrue(returnlist instanceof List);
+    }
 }
