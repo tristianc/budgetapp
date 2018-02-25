@@ -3,16 +3,17 @@ package io.budgetapp.mocks;
 import io.budgetapp.application.DataConstraintException;
 import io.budgetapp.crypto.PasswordEncoder;
 import io.budgetapp.dao.*;
+import io.budgetapp.model.Budget;
 import io.budgetapp.model.User;
 import io.budgetapp.model.form.SignUpForm;
+import io.budgetapp.model.form.budget.AddBudgetForm;
 import io.budgetapp.service.FinanceService;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Optional;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class FinanceServiceTest {
 
@@ -56,6 +57,31 @@ public class FinanceServiceTest {
         financeService.addUser(form);
 
         //then exception is caught via the @Test annotation
+    }
+
+    @Test
+    public void test_addBudget(){
+        //setup
+        FinanceService financeService = new FinanceService(userDAOMock, budgetDAOMock, budgetTypeDAOMock, categoryDAOMock, transactionDAOMock, recurringDAOMock, authTokenDAOMock, passwordEncoderMock);
+        User mockUser = mock(User.class);
+        AddBudgetForm mockAddBudgetForm = mock(AddBudgetForm.class);
+
+        //call
+        financeService.addBudget(mockUser, mockAddBudgetForm);
+
+        //verify
+        verify(this.budgetTypeDAOMock).addBudgetType();
+        verify(this.budgetDAOMock).addBudget(any(User.class), any(Budget.class));
+    }
+
+    @Test
+    public void test_updateBudget(){
+
+    }
+
+    @Test
+    public void test_deleteBudget(){
+
     }
 
 }

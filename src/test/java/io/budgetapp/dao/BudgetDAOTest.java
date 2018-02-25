@@ -23,9 +23,9 @@ public class BudgetDAOTest {
     public void setup(){
         this.mockSessionFactory = mock(SessionFactory.class);
         this.mockConfiguration = mock(AppConfiguration.class);
-        this.budgetDao = new BudgetDAO(mockSessionFactory, mockConfiguration);
         this.user = mock(User.class);
         this.mockSession = mock(Session.class);
+        this.budgetDao = new BudgetDAO(mockSessionFactory, mockConfiguration);
 
         when(mockSessionFactory.getCurrentSession()).thenReturn(mockSession);
     }
