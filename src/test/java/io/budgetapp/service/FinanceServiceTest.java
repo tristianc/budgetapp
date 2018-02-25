@@ -6,6 +6,7 @@ import io.budgetapp.dao.*;
 import io.budgetapp.model.*;
 import io.budgetapp.model.form.SignUpForm;
 import io.budgetapp.model.form.recurring.AddRecurringForm;
+import io.budgetapp.model.form.report.SearchFilter;
 import io.budgetapp.model.form.user.Password;
 import io.budgetapp.model.form.user.Profile;
 import io.budgetapp.model.form.budget.AddBudgetForm;
@@ -16,10 +17,12 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import static junit.framework.Assert.assertTrue;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 
 public class FinanceServiceTest {
@@ -291,5 +294,62 @@ public class FinanceServiceTest {
         verify(this.categoryDAOMock).delete(mockCategory);
     }
 
+    @Test
+    public void deleteTransactionTest(){
+        // setup
+        FinanceService financeService = new FinanceService(userDAOMock, budgetDAOMock, budgetTypeDAOMock, categoryDAOMock, transactionDAOMock, recurringDAOMock, authTokenDAOMock, passwordEncoderMock);
+        User mockUser = mock(User.class);
+        Transaction mockTransaction = mock(Transaction.class);
+        Budget mockBudget = mock(Budget.class);
+
+        Long id = (long)1;
+        Double actual = 4.0;
+        Double amount = 2.0;
+
+        // stubs
+        when(transactionDAOMock.findById(mockUser, id)).thenReturn(Optional.ofNullable(mockTransaction));
+        when(mockTransaction.getId()).thenReturn(id);
+        when(mockTransaction.getBudget()).thenReturn(mockBudget);
+        when(mockBudget.getActual()).thenReturn(actual);
+        when(mockTransaction.getAmount()).thenReturn(amount);
+
+        // call
+        Boolean deleteTransaction = financeService.deleteTransaction(mockUser, mockTransaction.getId());
+
+        // verify
+        verify(transactionDAOMock).delete(mockTransaction);
+        assertTrue(deleteTransaction);
+    }
+
+    @Test
+    public void findTransactionByIdTest(){
+        // setup
+        FinanceService financeService = new FinanceService(userDAOMock, budgetDAOMock, budgetTypeDAOMock, categoryDAOMock, transactionDAOMock, recurringDAOMock, authTokenDAOMock, passwordEncoderMock);
+        Long iD = (long)2;
+
+        // call
+        financeService.findTransactionById(iD);
+
+        // verify
+        verify(transactionDAOMock).findById(iD);
+    }
+
+    @Test
+    public void findTodayRecurringsTransactionsTest(){
+        // setup
+        FinanceService financeService = new FinanceService(userDAOMock, budgetDAOMock, budgetTypeDAOMock, categoryDAOMock, transactionDAOMock, recurringDAOMock, authTokenDAOMock, passwordEncoderMock);
+        User testUser = new User();
+        SearchFilter testSearchFilter = new SearchFilter();
+        testSearchFilter.setStartOn(new Date());
+        testSearchFilter.setEndOn(new Date());
+        testSearchFilter.setAuto(Boolean.TRUE);
+
+        // call
+        List returnlist = financeService.findTodayRecurringsTransactions(testUser);
+
+        // verify
+        assertTrue(returnlist instanceof List);
+    }
+
 }
-;
+
