@@ -12,11 +12,13 @@ import io.budgetapp.model.form.user.Profile;
 import io.budgetapp.model.form.budget.AddBudgetForm;
 import io.budgetapp.model.form.budget.UpdateBudgetForm;
 import io.budgetapp.service.FinanceService;
+import org.hibernate.SessionFactory;
 import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
+import java.time.LocalDate;
 import java.util.Optional;
 
 import static org.mockito.Mockito.*;
@@ -52,17 +54,46 @@ public class FinanceServiceTest {
     public void addUserExistingUserNameTest(){
         //given
         FinanceService financeService = new FinanceService(userDAOMock, budgetDAOMock, budgetTypeDAOMock, categoryDAOMock, transactionDAOMock, recurringDAOMock, authTokenDAOMock, passwordEncoderMock);
-        User userMock = mock(User.class);
-        Optional<User> userOptional = Optional.of(userMock);
         SignUpForm form = new SignUpForm();
         form.setUsername("usernameExists");
         form.setPassword("password");
+
+        //mock
+        User userMock = mock(User.class);
+        Optional<User> userOptional = Optional.of(userMock);
+
+        //stub
         when(userDAOMock.findByUsername("usernameExists")).thenReturn(userOptional);
 
         //when
         financeService.addUser(form);
 
         //then exception is caught via the @Test annotation
+
+    }
+
+    //verifies that the user created matches the sign up form
+    @Test
+    public void addUserTest(){
+        //given
+        FinanceService financeService = new FinanceService(userDAOMock, budgetDAOMock, budgetTypeDAOMock, categoryDAOMock, transactionDAOMock, recurringDAOMock, authTokenDAOMock, passwordEncoderMock);
+        SignUpForm form = new SignUpForm();
+        
+
+        //spy
+        FinanceService financeServiceSpy = spy(financeService);
+        SignUpForm formSpy = spy(form);
+        formSpy.setUsername("myUsername");
+        formSpy.setPassword("myPassword");
+
+        //when
+        financeServiceSpy.addUser(formSpy);
+
+        //verify
+        verify(userDAOMock).findByUsername(formSpy.getUsername());
+        verify(formSpy).setPassword(anyString());
+        verify(userDAOMock).add(formSpy);
+
     }
 
     @Test
@@ -190,3 +221,4 @@ public class FinanceServiceTest {
         verify(this.budgetDAOMock).update(mockBudget);
     }
 }
+;
