@@ -1,4 +1,4 @@
-package io.budgetapp.mocks;
+package io.budgetapp.service;
 
 import io.budgetapp.application.DataConstraintException;
 import io.budgetapp.crypto.PasswordEncoder;
@@ -11,17 +11,12 @@ import io.budgetapp.model.form.user.Password;
 import io.budgetapp.model.form.user.Profile;
 import io.budgetapp.model.form.budget.AddBudgetForm;
 import io.budgetapp.model.form.budget.UpdateBudgetForm;
-import io.budgetapp.service.FinanceService;
-import org.hibernate.SessionFactory;
 import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
-import java.time.LocalDate;
 import java.util.Optional;
-
-import static org.mockito.Mockito.*;
 
 public class FinanceServiceTest {
 
