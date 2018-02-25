@@ -54,5 +54,4 @@ public class CategoryDAOTest {
         verify(this.mockSession).delete(mockCategory);
     }
 
-
 }
