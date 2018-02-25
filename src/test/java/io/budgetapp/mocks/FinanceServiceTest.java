@@ -6,13 +6,14 @@ import io.budgetapp.dao.*;
 import io.budgetapp.model.User;
 import io.budgetapp.model.form.SignUpForm;
 import io.budgetapp.service.FinanceService;
+import org.hibernate.SessionFactory;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.time.LocalDate;
 import java.util.Optional;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class FinanceServiceTest {
 
@@ -45,17 +46,22 @@ public class FinanceServiceTest {
     public void addUserExistingUserNameTest(){
         //given
         FinanceService financeService = new FinanceService(userDAOMock, budgetDAOMock, budgetTypeDAOMock, categoryDAOMock, transactionDAOMock, recurringDAOMock, authTokenDAOMock, passwordEncoderMock);
-        User userMock = mock(User.class);
-        Optional<User> userOptional = Optional.of(userMock);
         SignUpForm form = new SignUpForm();
         form.setUsername("usernameExists");
         form.setPassword("password");
+
+        //mock
+        User userMock = mock(User.class);
+        Optional<User> userOptional = Optional.of(userMock);
+
+        //stub
         when(userDAOMock.findByUsername("usernameExists")).thenReturn(userOptional);
 
         //when
         financeService.addUser(form);
 
         //then exception is caught via the @Test annotation
+
     }
 
     //verifies that the user created matches the sign up form
@@ -64,12 +70,23 @@ public class FinanceServiceTest {
         //given
         FinanceService financeService = new FinanceService(userDAOMock, budgetDAOMock, budgetTypeDAOMock, categoryDAOMock, transactionDAOMock, recurringDAOMock, authTokenDAOMock, passwordEncoderMock);
         SignUpForm form = new SignUpForm();
-        form.setUsername("myUsername");
-        form.setPassword("password");
+        
+
+        //spy
+        FinanceService financeServiceSpy = spy(financeService);
+        SignUpForm formSpy = spy(form);
+        formSpy.setUsername("myUsername");
+        formSpy.setPassword("myPassword");
 
         //when
-        User newUser = financeService.addUser(form);
+        financeServiceSpy.addUser(formSpy);
+
+        //verify
+        verify(userDAOMock).findByUsername(formSpy.getUsername());
+        verify(formSpy).setPassword(anyString());
+        verify(userDAOMock).add(formSpy);
 
     }
 
 }
+;
